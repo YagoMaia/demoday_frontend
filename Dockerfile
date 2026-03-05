@@ -3,7 +3,6 @@ FROM node:alpine AS deps
 RUN apk add --no-cache libc6-compat 
 WORKDIR /app
 RUN npm install -g pnpm
-RUN corepack enable pnpm
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -12,7 +11,6 @@ RUN pnpm install --frozen-lockfile
 FROM node:alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm
-RUN corepack enable pnpm
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
