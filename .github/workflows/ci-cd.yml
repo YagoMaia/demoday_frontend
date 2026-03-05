@@ -53,37 +53,37 @@ jobs:
           # Configuração rigorosa de cache para não desperdiçar minutos de CI
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  # deploy:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name != 'pull_request'
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
 
-  #   steps:
-  #     - name: Checkout repository (com os playbooks do Ansible)
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository (com os playbooks do Ansible)
+        uses: actions/checkout@v4
 
-  #     - name: Instalar Ansible
-  #       run: |
-  #         sudo apt update
-  #         sudo apt install -y ansible
+      - name: Instalar Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
 
-  #     - name: Configurar chave SSH para o EC2
-  #       run: |
-  #         mkdir -p ~/.ssh
-  #         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-  #         chmod 600 ~/.ssh/id_rsa
-  #         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Configurar chave SSH para o EC2
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY2 }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST2 }} >> ~/.ssh/known_hosts
 
-  #     - name: Executar Ansible Playbook de Deploy
-  #       env:
-  #         ANSIBLE_HOST_KEY_CHECKING: "False"
-  #       run: |
-  #         # Cria um inventário dinâmico simples no CI
-  #         echo "[production]" > inventory.ini
-  #         echo "${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USERNAME }}" >> inventory.ini
+      - name: Executar Ansible Playbook de Deploy
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          # Cria um inventário dinâmico simples no CI
+          echo "[production]" > inventory.ini
+          echo "${{ secrets.EC2_HOST2 }} ansible_user=${{ secrets.EC2_USERNAME }}" >> inventory.ini
 
-  #         # Executa o playbook injetando as credenciais e a tag da imagem recém-criada
-  #         ansible-playbook -i inventory.ini ansible/deploy-app.yml \
-  #           -e "ghcr_user=${{ github.actor }}" \
-  #           -e "ghcr_token=${{ secrets.GITHUB_TOKEN }}" \
-  #           -e "app_image=ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
+          # Executa o playbook injetando as credenciais e a tag da imagem recém-criada
+          ansible-playbook -i inventory.ini ansible/deploy-app.yml \
+            -e "ghcr_user=${{ github.actor }}" \
+            -e "ghcr_token=${{ secrets.TOKEN }}" \
+            -e "app_image=ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
