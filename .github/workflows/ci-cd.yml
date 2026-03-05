@@ -85,5 +85,5 @@ jobs:
           # Executa o playbook injetando as credenciais e a tag da imagem recém-criada
           ansible-playbook -i inventory.ini ansible/deploy-app.yml \
             -e "ghcr_user=${{ github.actor }}" \
-            -e "ghcr_token=${{ secrets.TOKEN }}" \
+            -e "ghcr_token=${{ secrets.GITHUB_TOKEN }}" \
             -e "app_image=ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
