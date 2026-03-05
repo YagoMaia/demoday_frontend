@@ -1,0 +1,25 @@
+# deploy-app.yml
+- name: Deploy Next.js Application
+  hosts: production
+  become: yes
+  vars:
+    # Esta variável será injetada pelo GitHub Actions
+    app_image: "ghcr.io/yagomaia77/demodayfront:latest" 
+  
+  tasks:
+    - name: Fazer login no GHCR
+      community.docker.docker_login:
+        registry_url: ghcr.io
+        username: "{{ ghcr_user }}"
+        password: "{{ ghcr_token }}"
+
+    - name: Garantir que o container da aplicação está rodando com a nova imagem
+      community.docker.docker_container:
+        name: nextjs-app
+        image: "{{ app_image }}"
+        state: started
+        restart_policy: unless-stopped
+        pull: always # Força o download da nova imagem
+        ports:
+          - "3000:3000"
+        # O Ansible cuidará de parar o antigo e subir o novo automaticamente
