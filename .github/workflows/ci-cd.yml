@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: ["main"] # Executa ao commitar na main
+    branches: ["main", "chore/ci"]
   pull_request:
-    branches: ["main"] # Executa validações em PRs
+    branches: ["main"]
   workflow_dispatch:
 
 env:
