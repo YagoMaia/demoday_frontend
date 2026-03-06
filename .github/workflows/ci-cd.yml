@@ -81,8 +81,12 @@ jobs:
           echo "[production]" > inventory.ini
           echo "${{ secrets.EC2_HOST2 }} ansible_user=${{ secrets.EC2_USERNAME }}" >> inventory.ini
 
-          # Executa o playbook injetando as credenciais e a tag da imagem recém-criada
+          # Higieniza o nome do repositório para minúsculas (Exigência do Docker)
+          # A variável nativa $GITHUB_REPOSITORY contém o nome "YagoMaia/demoday_frontend"
+          REPO_LOWER=${GITHUB_REPOSITORY,,}
+
+          # Executa o playbook injetando as credenciais e a tag da imagem
           ansible-playbook -i inventory.ini ansible/deploy-app.yml \
             -e "ghcr_user=${{ github.actor }}" \
             -e "ghcr_token=${{ secrets.GITHUB_TOKEN }}" \
-            -e "app_image=ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
+            -e "app_image=ghcr.io/${REPO_LOWER}:sha-${{ github.sha }}"
