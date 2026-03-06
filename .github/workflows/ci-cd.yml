@@ -46,13 +46,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Só faz o push (upload para o registry) se não for um Pull Request
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Configuração rigorosa de cache para não desperdiçar minutos de CI
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.BACKEND_URL }}
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
