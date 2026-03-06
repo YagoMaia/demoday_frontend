@@ -1,0 +1,39 @@
+---
+- name: Configure EC2 for Next.js Docker Deploy
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Atualizar pacotes do Amazon Linux 2023
+      dnf:
+        name: '*'
+        state: latest
+
+    - name: Instalar o Docker
+      dnf:
+        name: docker
+        state: present
+
+    - name: Iniciar e habilitar o serviço do Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Fazer login no GitHub Container Registry (GHCR)
+      shell: "echo '{{ ghcr_token }}' | docker login ghcr.io -u {{ ghcr_user }} --password-stdin"
+
+    - name: Puxar a imagem recém-compilada
+      shell: "docker pull {{ app_image }}"
+
+    - name: Parar o container antigo (se existir)
+      shell: "docker stop nextjs-app || true"
+
+    - name: Remover o container antigo (se existir)
+      shell: "docker rm nextjs-app || true"
+
+    - name: Subir o novo container do Next.js
+      shell: "docker run -d --name nextjs-app --restart unless-stopped -p 3000:3000 {{ app_image }}"
+      
+    - name: Limpar imagens órfãs para liberar espaço no disco
+      shell: "docker image prune -a -f"
